@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Report Supply Lookup</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+    padding: 40px;
+}
+
+.container {
+    max-width: 700px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+h2 {
+    text-align: center;
+}
+
+input {
+    padding: 10px;
+    width: 70%;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.result {
+    margin-top: 25px;
+    padding: 20px;
+    background: #f9fafc;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.result p {
+    margin: 10px 0;
+}
+
+.label {
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Lookup Report Supply</h2>
+
+<input type="text" id="search" placeholder="Masukkan KEY">
+<button onclick="searchData()">Search</button>
+
+<div id="output"></div>
+
+</div>
+
+<script>
+
+const url = "https://opensheet.elk.sh/1CaUTznJeeGUMuwhjLDKdVlivIB8cMt23B1DZ38PcY9w/Report%20Supply";
+
+let data = [];
+
+fetch(url)
+.then(res => res.json())
+.then(json => {
+    data = json;
+});
+
+function searchData() {
+
+    const keyword = document.getElementById("search").value.trim();
+    const output = document.getElementById("output");
+
+    const result = data.find(row => row["KEY"] === keyword);
+
+    if(result){
+
+        let html = "<div class='result'>";
+
+        const headers = Object.keys(result);
+
+        // Kolom C sampai I (index 2 sampai 8)
+        for(let i = 2; i <= 8; i++){
+
+            const header = headers[i];
+
+            if(header){
+                html += "<p><span class='label'>" + header + "</span><br>" + result[header] + "</p>";
+            }
+
+        }
+
+        html += "</div>";
+
+        output.innerHTML = html;
+
+    } else {
+
+        output.innerHTML = "<div class='result'>Data tidak ditemukan</div>";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
