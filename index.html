@@ -1,145 +1,234 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Report Supply Lookup</title>
+<title>Report Supply System</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg,#1e3c72,#2a5298);
-    padding: 30px;
-    color: #333;
+
+body{
+    margin:0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    color:white;
 }
 
-.container {
-    max-width: 700px;
-    margin: auto;
-    background: #ffffff;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+/* HEADER */
+
+.header{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:20px;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
 }
 
-h2 {
-    text-align: center;
-    margin-bottom: 25px;
+.logo{
+    height:50px;
 }
 
-.search-box {
-    display: flex;
-    gap: 10px;
+.title{
+    font-size:22px;
+    font-weight:bold;
 }
 
-input {
-    flex: 1;
-    padding: 12px;
-    font-size: 16px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
+/* CONTAINER */
+
+.container{
+    max-width:1100px;
+    margin:auto;
+    padding:20px;
 }
 
-button {
-    padding: 12px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 8px;
-    background-color: #2a5298;
-    color: white;
-    cursor: pointer;
+/* SEARCH BOX */
+
+.search-box{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
 }
 
-button:hover {
-    background-color: #1e3c72;
+input{
+    flex:1;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
 }
 
-.result {
-    margin-top: 25px;
-    padding: 20px;
-    background: #f4f6f9;
-    border-radius: 10px;
+button{
+    padding:14px 25px;
+    border:none;
+    border-radius:10px;
+    background:#00c6ff;
+    background: linear-gradient(to right,#00c6ff,#0072ff);
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
 }
 
-.result p {
-    margin: 12px 0;
+button:hover{
+    transform:scale(1.05);
 }
 
-.label {
-    font-weight: bold;
-    color: #1e3c72;
+/* TABLE */
+
+.table-container{
+    overflow-x:auto;
+    background: rgba(255,255,255,0.05);
+    padding:15px;
+    border-radius:15px;
 }
 
-.loading {
-    margin-top: 20px;
-    text-align: center;
-    font-style: italic;
+table{
+    width:100%;
+    border-collapse: collapse;
 }
+
+th{
+    background:#00c6ff;
+    color:white;
+    padding:12px;
+    text-align:left;
+}
+
+td{
+    padding:12px;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+tr:hover{
+    background: rgba(255,255,255,0.1);
+}
+
+/* RESULT COUNT */
+
+.result-count{
+    margin-bottom:10px;
+}
+
+.loading{
+    text-align:center;
+}
+
 </style>
+
 </head>
 
 <body>
 
-<div class="container">
+<div class="header">
 
-<h2>Report Supply Lookup</h2>
+<img src="logo.png" class="logo">
 
-<div class="search-box">
-<input type="text" id="search" placeholder="Masukkan KEY">
-<button onclick="searchData()">Search</button>
+<div class="title">
+Report Supply System
 </div>
 
-<div id="loading" class="loading">Loading data...</div>
+</div>
+
+<div class="container">
+
+<div class="search-box">
+
+<input type="text" id="search" placeholder="Masukkan KEY...">
+
+<button onclick="searchData()">SEARCH</button>
+
+</div>
+
+<div id="loading" class="loading">
+Loading data...
+</div>
+
+<div id="resultCount" class="result-count"></div>
+
 <div id="output"></div>
 
 </div>
 
 <script>
 
-const url = "https://opensheet.elk.sh/1CaUTznJeeGUMuwhjLDKdVlivIB8cMt23B1DZ38PcY9w/Report%20Supply";
+const url="https://opensheet.elk.sh/1CaUTznJeeGUMuwhjLDKdVlivIB8cMt23B1DZ38PcY9w/Report%20Supply";
 
-let data = [];
+let data=[];
 
 fetch(url)
-.then(res => res.json())
-.then(json => {
-    data = json;
-    document.getElementById("loading").style.display = "none";
+.then(res=>res.json())
+.then(json=>{
+    data=json;
+    document.getElementById("loading").style.display="none";
 });
 
-document.getElementById("search").addEventListener("keypress", function(e){
-    if(e.key === "Enter"){
-        searchData();
-    }
+document.getElementById("search")
+.addEventListener("keypress",function(e){
+
+if(e.key==="Enter") searchData();
+
 });
 
 function searchData(){
 
-    const keyword = document.getElementById("search").value.trim().toLowerCase();
-    const output = document.getElementById("output");
+const keyword=document
+.getElementById("search")
+.value
+.toLowerCase()
+.trim();
 
-    const result = data.find(row => 
-        row["KEY"] && row["KEY"].toLowerCase() === keyword
-    );
+const results=data.filter(row=>
+row["KEY"] &&
+row["KEY"].toLowerCase().includes(keyword)
+);
 
-    if(result){
+const output=document.getElementById("output");
 
-        let html = "<div class='result'>";
+const resultCount=document.getElementById("resultCount");
 
-        const headers = Object.keys(result);
+if(results.length===0){
 
-        for(let i = 2; i <= 8; i++){
-            const header = headers[i];
-            if(header){
-                html += "<p><span class='label'>" + header + "</span><br>" + result[header] + "</p>";
-            }
-        }
+resultCount.innerHTML="Tidak ditemukan";
 
-        html += "</div>";
-        output.innerHTML = html;
+output.innerHTML="";
 
-    } else {
-        output.innerHTML = "<div class='result'>Data tidak ditemukan</div>";
-    }
+return;
+
+}
+
+resultCount.innerHTML=
+"Ditemukan "+results.length+" data";
+
+let table="<div class='table-container'><table>";
+
+table+="<tr>";
+
+const headers=Object.keys(results[0]);
+
+for(let i=2;i<=8;i++){
+
+table+="<th>"+headers[i]+"</th>";
+
+}
+
+table+="</tr>";
+
+results.forEach(row=>{
+
+table+="<tr>";
+
+for(let i=2;i<=8;i++){
+
+table+="<td>"+row[headers[i]]+"</td>";
+
+}
+
+table+="</tr>";
+
+});
+
+table+="</table></div>";
+
+output.innerHTML=table;
 
 }
 
