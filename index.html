@@ -2,53 +2,77 @@
 <html>
 <head>
 <title>Report Supply Lookup</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f6f9;
-    padding: 40px;
+    background: linear-gradient(135deg,#1e3c72,#2a5298);
+    padding: 30px;
+    color: #333;
 }
 
 .container {
     max-width: 700px;
     margin: auto;
-    background: white;
+    background: #ffffff;
     padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
 h2 {
     text-align: center;
+    margin-bottom: 25px;
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
 }
 
 input {
-    padding: 10px;
-    width: 70%;
+    flex: 1;
+    padding: 12px;
     font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
 }
 
 button {
-    padding: 10px 20px;
+    padding: 12px 20px;
     font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #2a5298;
+    color: white;
     cursor: pointer;
+}
+
+button:hover {
+    background-color: #1e3c72;
 }
 
 .result {
     margin-top: 25px;
     padding: 20px;
-    background: #f9fafc;
-    border-radius: 8px;
-    border: 1px solid #ddd;
+    background: #f4f6f9;
+    border-radius: 10px;
 }
 
 .result p {
-    margin: 10px 0;
+    margin: 12px 0;
 }
 
 .label {
     font-weight: bold;
+    color: #1e3c72;
+}
+
+.loading {
+    margin-top: 20px;
+    text-align: center;
+    font-style: italic;
 }
 </style>
 </head>
@@ -57,11 +81,14 @@ button {
 
 <div class="container">
 
-<h2>Lookup Report Supply</h2>
+<h2>Report Supply Lookup</h2>
 
+<div class="search-box">
 <input type="text" id="search" placeholder="Masukkan KEY">
 <button onclick="searchData()">Search</button>
+</div>
 
+<div id="loading" class="loading">Loading data...</div>
 <div id="output"></div>
 
 </div>
@@ -76,14 +103,23 @@ fetch(url)
 .then(res => res.json())
 .then(json => {
     data = json;
+    document.getElementById("loading").style.display = "none";
 });
 
-function searchData() {
+document.getElementById("search").addEventListener("keypress", function(e){
+    if(e.key === "Enter"){
+        searchData();
+    }
+});
 
-    const keyword = document.getElementById("search").value.trim();
+function searchData(){
+
+    const keyword = document.getElementById("search").value.trim().toLowerCase();
     const output = document.getElementById("output");
 
-    const result = data.find(row => row["KEY"] === keyword);
+    const result = data.find(row => 
+        row["KEY"] && row["KEY"].toLowerCase() === keyword
+    );
 
     if(result){
 
@@ -91,25 +127,18 @@ function searchData() {
 
         const headers = Object.keys(result);
 
-        // Kolom C sampai I (index 2 sampai 8)
         for(let i = 2; i <= 8; i++){
-
             const header = headers[i];
-
             if(header){
                 html += "<p><span class='label'>" + header + "</span><br>" + result[header] + "</p>";
             }
-
         }
 
         html += "</div>";
-
         output.innerHTML = html;
 
     } else {
-
         output.innerHTML = "<div class='result'>Data tidak ditemukan</div>";
-
     }
 
 }
